@@ -1,5 +1,5 @@
 
-var allDataPoints = [], learningRate, activationFun, ratioOftrainingData, numberOfIterations, SumSSE = 0, usermMSE = 0;
+var allDataPoints = [], learningRate,  ratioOftrainingData, numberOfIterations, SumSSE = 0, usermMSE = 0;
 var currentDataColor, canvasWidth, canvasHeight, y1ForLine = 0, y2ForLine = 0, isReady = false, numberOFClasses = 0,
   classes, colors, testingArr = [], validationArr = [], onlyFirstTime = true, perceptronsToTest, testingModeFlag = false;
 
@@ -21,31 +21,11 @@ function Perceptron(weights, threshol, output) {
   this.actualOutput = output;
 }
 
-function activate(type, BigX) {
+function activate( BigX) {
 
-  if (type == "Tanh") {
-    return ((2 / (1 + Math.exp(-2 * BigX))) - 1)
-  }
-  else if (type == "ReLU") {
-    if (BigX < 0)
-      return 0;
-    else {
-      return BigX;
-    }
-  }
-  else if (type == "Leaky ReLU") {
-    if (BigX < 0)
-      return 0;
-    else {
-      return 0.01 * BigX;
-    }
-  }
-  else if (type == "Sigmoid") {
+  
     return 1 / (1 + Math.exp(-1 * BigX))
-  }
-  else if (type == "Linear") {
-    return BigX
-  }
+  
 }
 function setTestingDataAndValidation() {
   var dataLength = allDataPoints.length;
@@ -87,8 +67,7 @@ function train() {
     trainPerceptron(percptrons, colors[0]);
     var accuracy = computePreformance([percptrons,], colors);
     console.log("accuracy : " + accuracy)
-    document.getElementById('confusionAccuracy').innerHTML = accuracy * 100 + "%";
-    document.getElementById('misclassificationRate').innerHTML = (1 - accuracy) * 100 + "%";
+    
     perceptronsToTest = [percptrons,];
   }
   else {
@@ -112,7 +91,7 @@ function computePreformance(perceptrons, colors) {
   for (let i = 0; i < testingArr.length; i++) {
     for (let j = 0; j < perceptrons.length; j++) {
       var bigX = (testingArr[i].positionX * perceptrons[j].weight1) + (testingArr[i].positionY * perceptrons[j].weight2) + perceptrons[j].threshold;
-      var actualOutput = Math.round(activate(activationFun, bigX));
+      var actualOutput = Math.round(activate( bigX));
       
       if ((testingArr[i].color == colors[j]) && (actualOutput == 1)) {
         numOfTruePositive++;
@@ -179,7 +158,7 @@ function trainPerceptron(perceptron, color1) {
       colorToTrain = -1;
     }
     bigX = (allDataPoints[t].positionX * perceptron.weight1) + (allDataPoints[t].positionY * perceptron.weight2) + perceptron.threshold;
-    perceptron.actualOutput = activate(activationFun, bigX);
+    perceptron.actualOutput = activate( bigX);
     var errorIteration = colorToTrain - perceptron.actualOutput;
     SumSSE = SumSSE + Math.pow(errorIteration, 2);
     var deltaWeight1 = learningRate * allDataPoints[t].positionX * errorIteration;
@@ -211,7 +190,7 @@ function trainPerceptron(perceptron, color1) {
             colorToTrain = -1;
           }
           bigX = (validationArr[i].positionX * perceptron.weight1) + (validationArr[i].positionY * perceptron.weight2) + perceptron.threshold;
-          perceptron.actualOutput = activate(activationFun, bigX);
+          perceptron.actualOutput = activate( bigX);
           var errorIteration = colorToTrain - perceptron.actualOutput;
           sumSSEValidation = sumSSEValidation + Math.pow(errorIteration, 2);
         }
@@ -275,11 +254,8 @@ function draw() {
    
 function testCurrentPosition() {
   if (testingModeFlag) {
-    document.getElementById('modeDiv').innerHTML = "Testing Mode";
-
-    // document.getElementById('testMode').innerHTML = "Class 2";
-    // document.getElementById('testMode').innerHTML = "Class 3";
-    // document.getElementById('testMode').innerHTML = "Class 4";
+   
+    
 
     if (mouseX > 0 && mouseX < canvasWidth && mouseY > 0 && mouseY < canvasHeight) {
       var bigX = 0, maximumOutput = -1000, perceptronIndex = -1;
@@ -290,7 +266,7 @@ function testCurrentPosition() {
 
       for (let i = 0; i < perceptronsToTest.length; i++) {
         bigX = (positionX * perceptronsToTest[i].weight1) + (positionY * perceptronsToTest[i].weight2) + perceptronsToTest[i].threshold;
-        actualOutput = (activate(activationFun, bigX));
+        actualOutput = (activate( bigX));
         if (actualOutput > maximumOutput) {
           maximumOutput = actualOutput;
           perceptronIndex = i ;
@@ -344,9 +320,7 @@ function setColor(color) {
   currentDataColor = color
 }
 
-function setActivationFun(actfun) {
-  activationFun = actfun
-}
+
 
 function setLearningRate(learningRat) {
   learningRate = learningRat

@@ -135,23 +135,7 @@
                         </div>
                     </div>
                  
-                    <div class="row mt-4">
-                        <div class="col-sm-6">Activation function</div>
-                        <div class="col-sm-6">
-                            <div class="dropdown">
-                                <button class="btn dropdown-toggle componentColor" id="chosenActivationFun"
-                                    type="button" data-toggle="dropdown" style="color: #ffffff;">Tanh
-                                </button>
-                                <ul class="dropdown-menu" id="activationFuns">
-                                    <li><a href="#" style="color: #011627;background-color:#ececec">Tanh</a></li>
-                                    <li><a href="#" style="color: #011627;background-color:#FFBD59">ReLU</a></li>
-                                    
-                                    <li><a href="#" style="color: #011627;background-color:#ececec">Sigmoid</a></li>
-                                    <li><a href="#" style="color: #011627;background-color:#FFBD59">Linear</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
+                  
                     <div class="row mt-4">
                         <div class="col-sm-6">learning rate <span id="learningRateValueDis"></span></div>
                         <div class="col-sm-6 slidecontainer">
@@ -181,7 +165,10 @@
                                 oninput="updateValue('SSERange','SSEValueDis'); setUserMSE(value);"></div>
                     </div>
                 </div>
+               
             </div>
+
+            
             <div class="col-sm-5">
                 <div class="container-fluid">
                     <div class="row justify-content-center componentBorder">
@@ -201,7 +188,7 @@
                 </div>
             </div>
         </div>
-    
+       
     </div>
 
 </body>
@@ -234,12 +221,12 @@
             // console.log($(this).css("background-color")) 
             var chosenFun = $(this).text();
             $('#chosenActivationFun').text(chosenFun);
-            setActivationFun(chosenFun);
+            
         });
     });
 
     setColor($('#allColors li a').css("background-color"));
-    setActivationFun('Tanh');
+    
     setLearningRate(0.2);
     setRatioOfTrainingData(70);
     setIterationNumber(1000);
