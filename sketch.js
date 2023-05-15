@@ -1,7 +1,8 @@
 
 var allDataPoints = [], learningRate,  ratioOftrainingData, numberOfIterations, SumSSE = 0, usermMSE = 0;
 var currentDataColor, canvasWidth, canvasHeight, y1ForLine = 0, y2ForLine = 0, isReady = false, numberOFClasses = 0,
-  classes, colors, testingArr = [], validationArr = [], onlyFirstTime = true, perceptronsToTest, testingModeFlag = false;
+  classes, colors, testingArr = [], validationArr = [], start = true, perceptronsToTest, testingFlag = false;
+
 
 function getRnd(min, max) {
   return (((max - min) * Math.random()) + min);
@@ -21,39 +22,34 @@ function Perceptron(weights, threshol, output) {
   this.actualOutput = output;
 }
 
-function activate( BigX) {
-
-  
-    return 1 / (1 + Math.exp(-1 * BigX))
-  
+function sigmoid( X) {
+    return 1 / (1 + Math.exp(-1 * X))
 }
-function setTestingDataAndValidation() {
-  var dataLength = allDataPoints.length;
-  console.log("dataLength : " + dataLength)
 
-  numberOfDataPointsToTest = Math.floor(((100 - ratioOftrainingData) * 0.01) * dataLength * 0.5);
-  console.log("numberOfDataPointsToTest : " + numberOfDataPointsToTest)
-  for (let i = 0; i < numberOfDataPointsToTest; i++) {
+function sepletDataValedationTest() {
+  var Length = allDataPoints.length;
+  DatToTest = Math.floor(((100 - ratioOftrainingData) * 0.01) * Length * 0.5);
+  for (let i = 0; i < DatToTest; i++) {
     var rendomIndex = Math.floor(Math.random() *  allDataPoints.length);
     testingArr.push(allDataPoints[rendomIndex]);
     allDataPoints.splice(rendomIndex, 1);
   }
-  numberOfDataPointsToValidation = Math.floor(((100 - ratioOftrainingData) * 0.01) * dataLength * 0.5);
-  console.log("numberOfDataPointsToValidation : " + numberOfDataPointsToValidation)
+  DataToValidation = Math.floor(((100 - ratioOftrainingData) * 0.01) * Length * 0.5);
 
-  for (let i = 0; i < numberOfDataPointsToValidation; i++) {
+  for (let i = 0; i < DataToValidation; i++) {
     var rendomIndex = Math.floor(Math.random() *  allDataPoints.length);
     validationArr.push(allDataPoints[rendomIndex]);
     allDataPoints.splice(rendomIndex, 1);
   }
 
 }
-function train() {
+
+function calcolate() {
   SumSSE = 0;
   var percptrons;
-  if (onlyFirstTime) {
-    setTestingDataAndValidation();
-    onlyFirstTime = false;
+  if ( start) {
+    sepletDataValedationTest();
+    start= false;
   }
   numberOFClasses = getNumberOfClasses(allDataPoints);
 
@@ -62,50 +58,23 @@ function train() {
   }
   else if (numberOFClasses == 2) {
     colors = getColors(numberOFClasses);
-    console.log(colors)
     percptrons = new Perceptron([getRnd(-0.5, 0.5), getRnd(-0.5, 0.5)], getRnd(-0.5, 0.5), 0);
-    trainPerceptron(percptrons, colors[0]);
-    var accuracy = computePreformance([percptrons,], colors);
-    console.log("accuracy : " + accuracy)
-    
+    startPerceptron(percptrons, colors[0]);
     perceptronsToTest = [percptrons,];
   }
   else {
     colors = getColors(numberOFClasses);
-    console.log(colors);
     percptrons = new Array(numberOFClasses);
     for (let i = 0; i < numberOFClasses; i++) {
       percptrons[i] = new Perceptron([getRnd(-0.5, 0.5), getRnd(-0.5, 0.5)], getRnd(-0.5, 0.5), 0);
-      trainPerceptron(percptrons[i], colors[i]);
+      startPerceptron(percptrons[i], colors[i]);
     }
-    var accuracy = computePreformance(percptrons, colors);
-    document.getElementById('confusionAccuracy').innerHTML = accuracy * 100 + "%";
-    document.getElementById('misclassificationRate').innerHTML = (1 - accuracy) * 100 + "%";
     perceptronsToTest = percptrons;
   }
-  testingModeFlag = true;
+  testingFlag = true;
 }
 
-function computePreformance(perceptrons, colors) {
-  var numOfTruePositive = 0, numOfTrueNegative = 0;
-  for (let i = 0; i < testingArr.length; i++) {
-    for (let j = 0; j < perceptrons.length; j++) {
-      var bigX = (testingArr[i].positionX * perceptrons[j].weight1) + (testingArr[i].positionY * perceptrons[j].weight2) + perceptrons[j].threshold;
-      var actualOutput = Math.round(activate( bigX));
-      
-      if ((testingArr[i].color == colors[j]) && (actualOutput == 1)) {
-        numOfTruePositive++;
-        break;
-      }
-      else if ((testingArr[i].color != colors[j]) && (actualOutput == -1)) {
-        numOfTrueNegative++;
-        break;
-      }
-    }
-  }
-  console.log("numOfTruePositive" + numOfTruePositive)
-  return (numOfTruePositive + numOfTrueNegative) / testingArr.length;
-}
+
 function getColors(numberOfclas) {
   var colors = new Array(numberOfclas);
   for (let i = 0, j = 0; i < classes[0].length; i++) {
@@ -116,7 +85,9 @@ function getColors(numberOfclas) {
   }
   return colors
 }
-function getNumberOfClasses(arrDataPoints) {
+
+
+function getNumberOfClasses(Data) {
   classes = new Array(2);
 
   classes[0] = new Array(4);
@@ -128,14 +99,14 @@ function getNumberOfClasses(arrDataPoints) {
   classes[0][3] = 4;
 
   var numOfClasses = 0;
-  for (let i = 0; i < arrDataPoints.length; i++) {
-    if (arrDataPoints[i].color == 1)
+  for (let i = 0; i < Data.length; i++) {
+    if (Data[i].color == 1)
       classes[1][0] = true;
-    else if (arrDataPoints[i].color == 2)
+    else if (Data[i].color == 2)
       classes[1][1] = true;
-    else if (arrDataPoints[i].color == 3)
+    else if (Data[i].color == 3)
       classes[1][2] = true;
-    else if (arrDataPoints[i].color == 4)
+    else if (Data[i].color == 4)
       classes[1][3] = true;
   }
   for (let i = 0; i < classes[1].length; i++) {
@@ -144,12 +115,13 @@ function getNumberOfClasses(arrDataPoints) {
   }
   return numOfClasses
 }
-function trainPerceptron(perceptron, color1) {
-  // console.log(perceptron)
+
+
+function startPerceptron(perceptron, color1) {
   var mMSE = 0;
-  var t = 0, i, bigX = 0, colorToTrain = 0, SumSSE = 0, epochNum = 0;
+  var t = 0, i, bigY = 0, colorToTrain = 0, SumSSE = 0, epochNum = 0;
   var arrEpoch = new Array(), arrOFMSE = new Array(), mSEValidation = new Array(),arrEpochValidation = new Array();
-  for (i = 0; i < numberOfIterations; i++, t++)/* while(true)*/ {
+  for (i = 0; i < numberOfIterations; i++, t++) {
 
     if (allDataPoints[t].color == color1) {
       colorToTrain = 1
@@ -157,8 +129,8 @@ function trainPerceptron(perceptron, color1) {
     else {
       colorToTrain = -1;
     }
-    bigX = (allDataPoints[t].positionX * perceptron.weight1) + (allDataPoints[t].positionY * perceptron.weight2) + perceptron.threshold;
-    perceptron.actualOutput = activate( bigX);
+    bigY = (allDataPoints[t].positionX * perceptron.weight1) + (allDataPoints[t].positionY * perceptron.weight2) + perceptron.threshold;
+    perceptron.actualOutput = sigmoid( bigY);
     var errorIteration = colorToTrain - perceptron.actualOutput;
     SumSSE = SumSSE + Math.pow(errorIteration, 2);
     var deltaWeight1 = learningRate * allDataPoints[t].positionX * errorIteration;
@@ -166,13 +138,9 @@ function trainPerceptron(perceptron, color1) {
     var deltaWeight2 = learningRate * allDataPoints[t].positionY * errorIteration;
     perceptron.weight2 = deltaWeight2 + perceptron.weight2;
     y1ForLine = (perceptron.threshold - (perceptron.weight1 * -1)) / perceptron.weight2;
-    // console.log("before y1: "+y1ForLine);
     y1ForLine = scaleOutput(y1ForLine, 0, 500);
-    // console.log("after y1: "+y1ForLine);
     y2ForLine = (perceptron.threshold - (perceptron.weight1 * 1)) / perceptron.weight2;
-    // console.log("before y2: "+y2ForLine);
     y2ForLine = scaleOutput(y2ForLine, 0, 500);
-    // console.log("after y2: "+y2ForLine);
     isReady = true;
     if (t == (allDataPoints.length - 1))     {
       t = -1;
@@ -189,8 +157,8 @@ function trainPerceptron(perceptron, color1) {
           else {
             colorToTrain = -1;
           }
-          bigX = (validationArr[i].positionX * perceptron.weight1) + (validationArr[i].positionY * perceptron.weight2) + perceptron.threshold;
-          perceptron.actualOutput = activate( bigX);
+          bigY= (validationArr[i].positionX * perceptron.weight1) + (validationArr[i].positionY * perceptron.weight2) + perceptron.threshold;
+          perceptron.actualOutput = sigmoid( bigY);
           var errorIteration = colorToTrain - perceptron.actualOutput;
           sumSSEValidation = sumSSEValidation + Math.pow(errorIteration, 2);
         }
@@ -199,27 +167,25 @@ function trainPerceptron(perceptron, color1) {
         arrEpochValidation.push(epochNum);
       }
       drawPlot(arrEpoch, arrOFMSE, arrEpochValidation, mSEValidation);
-      console.log("M S E "+mMSE);
       if (mMSE < usermMSE) {
-        // console.log("mMSE < usermMSE"); 
         window.alert("Training ends because MSE is less than"+usermMSE);
         break;
       }
-      //  console.log("MSE " +mMSE );
-      // getSumSEE(SumSSE / allDataPoints.length );
       SumSSE = 0;
     }
   }
   draw();
 }
+
 function scaleInput(input, min, max) {
   return ((input - min) * ((1 - (-1)) / (max - min)) + -1)
 }
+
 function scaleOutput(output, min, max) {
   return ((output - (-1)) * ((max - min) / (1 - (-1))) + min)
 }
+
 function setup() {
-  // var canvasStyle = document.getElementById("canvasDiv").style
   canvasWidth = 500;
   canvasHeight = 500;
   var canvas1 = createCanvas(500, 500);
@@ -229,9 +195,6 @@ function setup() {
 
 function draw() {
   if (isReady) {
-    // clear  ();
-    // background(255);
-    // console.log("draw"); 
     for (let i = 0; i < allDataPoints.length; i++) {
 
       xscaleOutput = scaleOutput(allDataPoints[i].positionX, 0, 500)
@@ -253,32 +216,24 @@ function draw() {
 }
    
 function testCurrentPosition() {
-  if (testingModeFlag) {
-   
-    
-
+  if (testingFlag) {
     if (mouseX > 0 && mouseX < canvasWidth && mouseY > 0 && mouseY < canvasHeight) {
-      var bigX = 0, maximumOutput = -1000, perceptronIndex = -1;
+      var bigY = 0, maximumOutput = -1000, perceptronIndex = -1;
       var positionX = scaleInput(mouseX, 0, 500)
       var positionY = scaleInput(mouseY, 0, 500)
-      // console.log("positionX : "+positionX)
-      // console.log("positionY : "+positionY)
 
       for (let i = 0; i < perceptronsToTest.length; i++) {
-        bigX = (positionX * perceptronsToTest[i].weight1) + (positionY * perceptronsToTest[i].weight2) + perceptronsToTest[i].threshold;
-        actualOutput = (activate( bigX));
+        bigY = (positionX * perceptronsToTest[i].weight1) + (positionY * perceptronsToTest[i].weight2) + perceptronsToTest[i].threshold;
+        actualOutput = (sigmoid( bigY));
         if (actualOutput > maximumOutput) {
           maximumOutput = actualOutput;
           perceptronIndex = i ;
         }
-        // console.log("actualOutput : "+actualOutput)
       }
-      // document.getElementById('testMode').innerHTML = "Class "+perceptronIndex;
       if (colors.length > 2) {
         document.getElementById('testMode').innerHTML = "Class "+colors[perceptronIndex];
       }
       else {
-      // var  actualOutputR = Math.round(actualOutput);
         for (let i = 1; i < 5; i++) {
           if (actualOutput >= 0.1 && colors[0] == i) {
             document.getElementById('testMode').innerHTML = "Class " + i;
@@ -296,7 +251,6 @@ function testCurrentPosition() {
 function mouseClicked(event) {
   fill(currentDataColor)
   ellipse(mouseX, mouseY, 7, 7);
-  //  console.log("mouseX" + mouseX + " mouseY" + mouseY + " color : " + currentDataColor);
   if (mouseX > 0 && mouseX < canvasWidth && mouseY > 0 && mouseY < canvasHeight) {
     var inputColor
     console.log('currentDataColor' + currentDataColor)
@@ -312,8 +266,6 @@ function mouseClicked(event) {
     var y = scaleInput(mouseY, 0, 500)
     var newPoint = new DataPoint(x, y, inputColor);
     allDataPoints.push(newPoint);
-    // console.log(newPoint.color)
-    // console.log("currentDataColor" + currentDataColor);
   }
 }
 function setColor(color) {
@@ -345,8 +297,6 @@ function setUserMSE(mse) {
   usermMSE = mse;
 }
 function drawPlot(arrsEpochTraining, arrsOFMSETraining, arrsEpochVal, arrsMSEVal) {
-  //  console.log(arrsEpoch)
-  //  console.log(arrsOFMSE)
 
   var trace1 = {
     x: arrsEpochTraining,
@@ -360,7 +310,7 @@ function drawPlot(arrsEpochTraining, arrsOFMSETraining, arrsEpochVal, arrsMSEVal
       x: arrsEpochVal,
       y: arrsMSEVal,
       name: 'Validation',
-  //arrsEpoch
+
     type: 'scatter',
       fill: 'tozeroy',
     };

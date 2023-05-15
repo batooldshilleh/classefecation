@@ -108,7 +108,7 @@
                             </button></div>
 
                         <div class="col-sm-3">
-                            <button type="button" class="btn btn-circle componentColor" onclick="train()"><i
+                            <button type="button" class="btn btn-circle componentColor" onclick="calcolate()"><i
                                     class="glyphicon glyphicon-play" style="color: #ffffff;"></i>
                             </button>
                         </div>
@@ -195,13 +195,7 @@
 
 
 <script>
-    // var slider = document.getElementById("learningRateRange");
-    // var output = document.getElementById("learningRateValue");
-    // output.innerHTML = slider.value;
 
-    // slider.oninput = function () {
-    //     output.innerHTML = this.value;
-    // }
     function updateValue(sliderId, valueDisplayId) {
         var slider = document.getElementById(sliderId);
         var output = document.getElementById(valueDisplayId);
@@ -209,16 +203,14 @@
     }
 
     $(document).ready(function () {
-        $('#allColors li a').on('click', function () {
-            // console.log($(this).css("background-color")) 
+        $('#allColors li a').on('click', function () { 
             var chosenColor = $(this).css("background-color");
             $('#dataColorBtn').css("background-color", chosenColor);
             setColor(chosenColor);
         });
     });
     $(document).ready(function () {
-        $('#activationFuns li a').on('click', function () {
-            // console.log($(this).css("background-color")) 
+        $('#activationFuns li a').on('click', function () { 
             var chosenFun = $(this).text();
             $('#chosenActivationFun').text(chosenFun);
             
